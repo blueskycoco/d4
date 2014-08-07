@@ -6,15 +6,9 @@
 #include "hal_buttons.h"
 #include "hal_board.h"
 #include "hal_serial.h"
+#include "hal_lcd.h"
 
 volatile unsigned char flag=0;
-#define CPU_CLOCK 6000000
-#if CPU_CLOCK == 6000000
-            #define delay_us(us)    __delay_cycles(6*(us))
-            #define delay_ms(ms)    __delay_cycles(6000*(ms))
-#else
-            #pragma error "CPU_CLOCK is defined implicitly!"
-#endif
 
 void main( void )
 {
@@ -24,6 +18,7 @@ void main( void )
 	hal430SetSystemClock();
 	halButtonsInit();
 	Init_Uart(115200);
+	Init_Lcd();
 	printf("main\r\n");
 	 while(1)
 	{
