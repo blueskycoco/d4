@@ -21,7 +21,7 @@ void Init_Uart( unsigned long ulWantedBaud)
 	UCTL0 &= ~SWRST;        // Initialize USCI state machine
 	U0IE |= URXIE0;           // 允许接收中断
 
-	return NULL;
+	return ;
 }
 
 #pragma vector=UART0RX_VECTOR
