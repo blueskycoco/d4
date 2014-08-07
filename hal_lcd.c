@@ -13,7 +13,7 @@
 #define cs1 P2OUT
 #define rst P1OUT
 
-#define BIT_SCLK BIT6
+#define BIT_SCLK BIT7
 #define BIT_DI BIT5
 #define BIT_A0 BIT6
 #define BIT_CS1 BIT0
@@ -353,8 +353,8 @@ void data_send(unsigned char dat)
 	for(i=8;i>0;i--)
 	{
 		sclk&=~BIT_SCLK;
-		delay_ms(1);		
-		delay_ms(1);		
+		//delay_us(1);		
+		delay_us(1);		
 		temp=s & 0x80;
 		if(temp)
 		{di|=BIT_DI;}
@@ -398,8 +398,8 @@ void display_map(unsigned char *p)//P 是图片数据的首地址
 void Init_Lcd(void)
 {
 	rst&=~BIT_RST;	
-	delay_ms(1);	
-	delay_ms(1);	
+	delay_us(1);	
+	delay_us(1);	
 	rst|=BIT_RST;
 	w_coms(0xaf); //ON DISPLAY
 	w_coms(0x40); //STAR DISPLAY
