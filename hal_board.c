@@ -126,7 +126,7 @@ __interrupt void ADC12ISR(void)
 }
 unsigned short Get_Power()
 {
-    ADC12CTL0 |= ADC12SC;   // 开始转换
+    	ADC12CTL0 |= ADC12SC;   // 开始转换
   	printf("Current Power is %x\r\n",PowerVoltage);
 	return PowerVoltage;
 }
