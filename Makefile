@@ -34,6 +34,7 @@ hal_board.c \
 hal_buttons.c \
 hal_serial.c \
 hal_lcd.c \
+hal_at24c02.c \
 main.c
 
 

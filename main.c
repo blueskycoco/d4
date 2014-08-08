@@ -7,6 +7,7 @@
 #include "hal_board.h"
 #include "hal_serial.h"
 #include "hal_lcd.h"
+#include "hal_at24c02.h"
 
 volatile unsigned char flag=0;
 void Delay(int ms)
@@ -15,9 +16,12 @@ void Delay(int ms)
 	for(i=0;i<ms;i++)
 	  delay_ms(1);
 }
+const unsigned char eeprom[10]={'1','2','3','4','5','6','7','8','9','0'};
 void main( void )
 {
 	unsigned int ucState=0xffff;
+	unsigned char test[10];
+	memset(test,'\0',10);
 	int i=0;
 	halBoardInit();
 	hal430SetSystemClock();
@@ -25,7 +29,9 @@ void main( void )
 	Init_Uart(115200);
 	Init_Lcd();
 	Msp430_ADC12_Init();
-	printf("main\r\n");
+	Write_NByte(eeprom,10,0);
+	Read_NByte_Randomaddress(test,10,0);
+	printf("main %s\r\n",test);
 	 while(1)
 	{
 		if(flag==1)
