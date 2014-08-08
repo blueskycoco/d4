@@ -1,14 +1,14 @@
 #include "msp430.h"
 #include "hal_at24c02.h"
 
-#define SCL_H P5OUT |= BIT6
-#define SCL_L P5OUT &= ~BIT6
-#define SDA_H P5OUT |= BIT7
-#define SDA_L P5OUT &= ~BIT7
+#define SCL_H P3OUT |= BIT6
+#define SCL_L P3OUT &= ~BIT6
+#define SDA_H P3OUT |= BIT7
+#define SDA_L P3OUT &= ~BIT7
 
-#define SDA_in  P5DIR &= ~BIT7   //SDA改成输入模式
-#define SDA_out P5DIR |= BIT7    //SDA变回输出模式
-#define SDA_val P5IN&BIT7        //SDA的位值
+#define SDA_in  P3DIR &= ~BIT7   //SDA改成输入模式
+#define SDA_out P3DIR |= BIT7    //SDA变回输出模式
+#define SDA_val P3IN&BIT7        //SDA的位值
 
 #define TRUE    1
 #define FALSE   0
