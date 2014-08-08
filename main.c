@@ -24,6 +24,7 @@ void main( void )
 	halButtonsInit();
 	Init_Uart(115200);
 	Init_Lcd();
+	Msp430_ADC12_Init();
 	printf("main\r\n");
 	 while(1)
 	{
@@ -39,6 +40,8 @@ void main( void )
 			if(ucState!=0xffff)
 			{
 			    i=0;
+			    hal_buzzer(2);
+			    Get_Power();
 				//printf("%x is pressed\r\n",ucState);
 				switch(ucState)
 					{
@@ -103,6 +106,7 @@ void main( void )
 			//如果周边设备在关机时有需要复位的或是关闭的在这里处理
 			printf("we are in power off state\r\n");
 		}
+		hal_buzzer(0);
 		printf("we going to LPM4\r\n");
 		LPM4;
 	}
@@ -127,11 +131,13 @@ __interrupt void prvNMIInterrupt( void )
 			printf("going to sleep\r\n");
 			IFG1 &= ~NMIIFG;
 			IE1 |= NMIIE;
+			hal_buzzer(0);
 			LPM4;
 		}
 		else
 		{
 			LPM4_EXIT;
+			hal_buzzer(0);
 			IFG1 &= ~NMIIFG;
 			IE1 |= NMIIE;
 			flag=1;
