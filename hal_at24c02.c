@@ -1,13 +1,12 @@
 #include "msp430.h"
 #include "hal_at24c02.h"
+#define SCL_H {P3OUT |= BIT6;}
+#define SCL_L {P3OUT &= ~BIT6;}
+#define SDA_H {P3OUT |= BIT7;}
+#define SDA_L {P3OUT &= ~BIT7;}
 
-#define SCL_H P3OUT |= BIT6
-#define SCL_L P3OUT &= ~BIT6
-#define SDA_H P3OUT |= BIT7
-#define SDA_L P3OUT &= ~BIT7
-
-#define SDA_in  P3DIR &= ~BIT7   //SDA改成输入模式
-#define SDA_out P3DIR |= BIT7    //SDA变回输出模式
+#define SDA_in  {P3DIR &= ~BIT7;}   //SDA改成输入模式
+#define SDA_out {P3DIR |= BIT7;}    //SDA变回输出模式
 #define SDA_val P3IN&BIT7        //SDA的位值
 
 #define TRUE    1
@@ -25,7 +24,7 @@ void delay(void)
 	uchar i;
 
 	for(i = 0;i < 15;i++)
-		_NOP();
+		__delay_cycles(6);
 }    
 /*******************************************
  * 函数名称：start
@@ -67,11 +66,11 @@ void stop(void)
 void mack(void)
 {
 	SDA_L;
-	_NOP(); _NOP();
+	__delay_cycles(6); __delay_cycles(6);
 	SCL_H;
 	delay();
 	SCL_L;
-	_NOP();_NOP();
+	__delay_cycles(6);__delay_cycles(6);
 	SDA_H;     
 	delay();
 }
@@ -84,11 +83,11 @@ void mack(void)
 void mnack(void)
 {
 	SDA_H;
-	_NOP(); _NOP();
+	__delay_cycles(6);__delay_cycles(6);
 	SCL_H;
 	delay();
 	SCL_L;
-	_NOP(); _NOP();
+	__delay_cycles(6);__delay_cycles(6);
 	SDA_L;   
 	delay();       
 }
@@ -106,11 +105,11 @@ uchar check(void)
 	uchar slaveack;
 
 	SDA_H;
-	_NOP(); _NOP();
+	__delay_cycles(6);__delay_cycles(6);
 	SCL_H;
-	_NOP(); _NOP();
+	__delay_cycles(6);__delay_cycles(6);
 	SDA_in;
-	_NOP(); _NOP();
+	__delay_cycles(6);__delay_cycles(6);
 	slaveack = SDA_val;   //读入SDA数值
 	SCL_L;
 	delay();
@@ -166,7 +165,7 @@ void write1byte(uchar wdata)
 	}                  
 
 	SDA_H;
-	_NOP();   
+	__delay_cycles(6);
 }
 /*******************************************
  * 函数名称：writeNbyte
@@ -259,8 +258,9 @@ void readNbyte(uchar * inbuffer,uchar n)
 ********************************************/
 void delay_10ms(void)
 {
-    uint i = 1000;
-    while(i--);
+    volatile uint i = 10;
+    while(i--)
+    __delay_cycles(6000);
 }
 /*******************************************
 函数名称：Write_1Byte
