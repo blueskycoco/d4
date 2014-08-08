@@ -417,12 +417,12 @@ void display_HZ(unsigned char x,unsigned char y,unsigned char *p)
 	{
 		wdatas(*p++);
 	}                           
-	y+=1;
+	/*y+=1;
 	Setxy(x,y);     
 	for(i=16;i<32;i++)
 	{
 		wdatas(*p++); 
-	}    
+	} */   
 }
 
 void Init_Lcd(void)
@@ -448,8 +448,8 @@ void Init_Lcd(void)
 	for(i=0;i<128;i++)
 	{
 		display_HZ(x,y,(unsigned char *)(FONT16X8[i]));
-		y=y+16;
-		x=x+8;
+		y=y+1;
+		x=x+1;
 			
 	}
 }
