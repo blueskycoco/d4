@@ -18,6 +18,12 @@
 #define BIT_A0 BIT6
 #define BIT_CS1 BIT0
 #define BIT_RST BIT7
+#define SSD1306_LCDWIDTH                    128
+#define SSD1306_LCDHEIGHT                   64
+#define _BV(bit) (1<<(bit))
+#define FALSE 0
+#define TRUE 1
+volatile unsigned char buffer[1024];
 /*
 const unsigned char niu[1024]={
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -381,7 +387,7 @@ void wdatas(unsigned char dat)
 	data_send(dat);
 	cs1|=BIT_CS1;
 }
-/*
+
 void display_map(unsigned char *p)
 {
 	unsigned char seg;
@@ -395,7 +401,7 @@ void display_map(unsigned char *p)
 		{ wdatas(*p++); }
 	}
 }
-*/
+
 void Setxy(unsigned char x,unsigned char y)
 { 
 	unsigned char tmp=0;
@@ -426,7 +432,88 @@ void display_HZ(unsigned char x,unsigned char y,unsigned char *p)
 		wdatas(*p++); 
 	}   
 }
+void setpixel(unsigned char x, unsigned char y,int clear) {
+	/*判断是否超出了边界128×64*/
+  if ((x >= SSD1306_LCDWIDTH) || (y >= SSD1306_LCDHEIGHT))
+    return;
 
+  // x is which column
+  //if (color == WHITE) 
+  /*clear用于确定是背景色黑色，还是前景色，主要在绘制电池图标时使用，TRUE是背景色，FALSE是前景色*/
+	if(clear)
+		buffer[x+ (y/8)*SSD1306_LCDWIDTH] = 0;  
+	else
+		buffer[x+ (y/8)*SSD1306_LCDWIDTH] |= _BV((y%8));  
+  //else
+    //buffer[x+ (y/8)*SSD1306_LCDWIDTH] &= ~_BV((y%8)); 
+}
+/*画线接口，从(x0,y0)到(x1,y1)画一条直线*/
+void drawline(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1) {
+/*确定x,y坐标的位差,原则是从小坐标的点画向大坐标的点*/
+  unsigned char steep = abs(y1 - y0) > abs(x1 - x0);
+    unsigned char dx, dy,tmp;
+	int err;
+	int ystep;
+	/*交替x0,y0 x1,y1*/
+  if (steep) {
+    //swap(x0, y0);
+    //swap(x1, y1);
+	tmp=x0;
+	x0=y0;
+	y0=tmp;
+	tmp=x1;
+	x1=y1;
+	y1=tmp;
+  }
+/*交替x0,x1 y0,y1*/
+  if (x0 > x1) {
+    //swap(x0, x1);
+    //swap(y0, y1);
+	tmp=x0;
+	x0=x1;
+	x1=tmp;
+	tmp=y0;
+	y0=y1;
+	y1=tmp;
+  }
+
+/*计算画点xy长度*/
+  dx = x1 - x0;
+  dy = abs(y1 - y0);
+
+  err = dx / 2;
+  
+/*根据y0,y1的大小，计算step大小*/
+  if (y0 < y1) {
+    ystep = 1;
+  } else {
+    ystep = -1;}
+/*从x0开始画点*/
+  for (; x0<x1; x0++) {
+    if (steep) {
+      setpixel(y0, x0,FALSE);
+    } else {
+      setpixel(x0, y0,FALSE);
+    }
+    err -= dy;
+    if (err < 0) {
+      y0 += ystep;
+      err += dx;
+    }
+  }
+}
+
+/*从xy坐标开始填充宽度w，高度h的区域*/
+void fillrect(unsigned char x, unsigned char y, unsigned char w, unsigned char h,int clear) {
+
+  // stupidest version - just pixels - but fast with internal buffer!
+  unsigned char i,j;
+  for (i=x; i<x+w; i++) {
+    for (j=y; j<y+h; j++) {
+      setpixel(i, j,clear);
+    }
+  }
+}
 void Init_Lcd(void)
 {
 	unsigned char i,x=0,y=0;
@@ -458,5 +545,17 @@ void Init_Lcd(void)
 		}
 			
 	}
+	memset(buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
+	fillrect(114,1,127,7,TRUE);
+	drawline(112,3,115,3);	
+	drawline(114,3,114,1);	
+	drawline(114,1,127,1);	
+	drawline(127,1,127,8);	
+	drawline(127,7,114,7);	
+	drawline(114,7,114,5);	
+	drawline(114,5,112,5);	
+	drawline(112,5,112,3);	
+	fillrect(127-(unsigned char)(30*28/100),1,(unsigned char)(30*28/100),7,FALSE);
+	display_map((unsigned char *)buffer);
 }
 
