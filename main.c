@@ -12,7 +12,7 @@
 volatile unsigned char flag=0;
 void Delay(int ms)
 {
-  int i=0;
+ 	 int i=0;
 	for(i=0;i<ms;i++)
 	  delay_ms(1);
 }
@@ -40,12 +40,13 @@ void main( void )
 			//IE1 |= WDTIE;                         // Enable WDT interrupt
 			printf("we are in active state\r\n");
 			//这里写自己的程序，把程序做在一个有限的循环里，这样做完之后就可以自动结束并关机。
-			for(i=0;i<100;i++){
+			for(i=0;i<1000;i++){
 			ucState = halButtonsPressed();
 			
 			if(ucState!=0xffff)
 			{
 			    i=0;
+			    send_wave();
 			    hal_buzzer(2);
 			    Get_Power();
 				//printf("%x is pressed\r\n",ucState);
@@ -101,7 +102,7 @@ void main( void )
 					}
 			}			
 			//LPM3;
-			Delay(50);
+			Delay(100);
 			}
 			//如需定时，上边这个LPM3要被包括在那个有循环的循环体中，这样才能实现类似便携式仪表5分钟自动关机的效果。如果不使用定时也可以不要LPM3这句话。
 			//WDTCTL = WDTPW + WDTHOLD + WDTNMI;             // Stop watchdog timer
@@ -127,7 +128,7 @@ __interrupt void wdt_timer(void)
 #pragma vector=NMI_VECTOR
 __interrupt void prvNMIInterrupt( void )
 {
-
+int i;
 	if((IFG1&NMIIFG)==NMIIFG)
 	{
 		//RST/NMI不可屏蔽中断
@@ -143,6 +144,18 @@ __interrupt void prvNMIInterrupt( void )
 		else
 		{
 			LPM4_EXIT;
+			BCSCTL1 &= ~XT2OFF;
+  do
+  {   
+	/*j++;
+	if(j == 110) // XT2 Switching Overtime  
+	{
+	  break;
+	}*/
+	IFG1 &= ~OFIFG;       
+	for(i=0xff;i>0;i--);
+  }
+  while((IFG1&OFIFG));
 			hal_buzzer(0);
 			IFG1 &= ~NMIIFG;
 			IE1 |= NMIIE;

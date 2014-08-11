@@ -16,5 +16,5 @@ void hal430SetSystemClock(void);
 void Msp430_ADC12_Init(void);
 unsigned short Get_Power();
 void hal_buzzer(int type);
-
+void send_wave();
 #endif /* HAL_BOARD_H */

@@ -4,10 +4,24 @@
  * Copyright 2010 Texas Instruments, Inc.
  ******************************************************************************/
 #include "msp430.h"
+#include "hal_lcd.h"
 #include "hal_board.h"
 
 extern void Delay(int ms);
-
+#define U1_5_PORT P4OUT		//20hz wave h
+#define U1_5_PIN BIT5
+#define U1_1_PORT P2OUT		//out wave l
+#define U1_1_PIN BIT4
+#define U1_9_PORT P1IN		//back wave h
+#define U1_9_PIN BIT0
+#define U6_1_PORT P2OUT		//ctl 221d work
+#define U6_1_PIN BIT1
+#define U6_4_PORT P1IN		// /Q intr
+#define U6_4_PIN BIT5
+#define VQ1_2_PORT P6OUT  	//vq1 ctl
+#define VQ1_2_PIN BIT2
+#define VQ2_2_PORT P3OUT	//vq2 ctl
+#define VQ2_2_PIN BIT6
 /**********************************************************************//**
  * @brief  Initializes all GPIO configurations.
  *
@@ -19,15 +33,19 @@ void halBoardInit(void)
 {
   //Tie unused ports
   P1OUT  = 0;
-  P1DIR  = 0xFF;
+  P1DIR  = 0xde;
   P1SEL  = 0;
-  P2OUT  = 0;
+  P1IES &=0xfe;//p1.0 is low to high U1.9
+  P1IES |=0x20;//p1.5 is high to low U6.4
+  P1IE |=0x21;
+  
+  P2OUT  = 0x10;
   P2DIR  = 0xFF;
   P2SEL  = 0;
   P3OUT  = 0;
   P3DIR  = 0xFF;
   P3SEL  = 0;
-  P4OUT  = 0;
+  P4OUT  = 0x20;//p4.5 h
   P4DIR  = 0xf0;
   P4SEL  = 0x00;
   P5OUT  = 0;
@@ -59,11 +77,11 @@ void hal430SetSystemClock()
   BCSCTL1 &= ~XT2OFF;
   do
   {   
-	j++;
-	if(j == 11) // XT2 Switching Overtime  
+	/*j++;
+	if(j == 110) // XT2 Switching Overtime  
 	{
 	  break;
-	}
+	}*/
 	IFG1 &= ~OFIFG;       
 	for(i=0xff;i>0;i--);
   }
@@ -106,6 +124,26 @@ void hal_buzzer(int type)
 
   }
 }
+void us_delay(int v)
+{
+	volatile int i,j;
+	for(i=0;i<v;i++)
+		j=1;
+}
+void send_wave()
+{
+	int i=0;
+	for(i=0;i<24;i++)
+	{
+	U1_5_PORT&=~U1_5_PIN;
+	delay_us(37);
+	U1_5_PORT|=U1_5_PIN;
+	delay_us(1);
+	}
+	U1_5_PORT&=~U1_5_PIN;
+	delay_us(18);
+	U1_5_PORT|=U1_5_PIN;
+}
 void Msp430_ADC12_Init(void)
 {
   P6SEL |= BIT0;   // 使能AD通道输入P6.0
@@ -129,4 +167,17 @@ unsigned short Get_Power()
     	ADC12CTL0 |= ADC12SC;   // 开始转换
   	printf("Current Power is %x\r\n",PowerVoltage);
 	return PowerVoltage;
+}
+#pragma vector=PORT1_VECTOR
+__interrupt void PORT1ISR(void){
+	if( ( P1IFG & BIT0 ) != 0 )
+	{
+		printf("back wave intr \r\n");
+		P1IFG&=~BIT0;
+	}
+	if( ( P1IFG & BIT5 ) != 0 )
+	{
+		printf("U6 pin4 ,/Q intr \r\n");
+		P1IFG&=~BIT5;
+	}
 }
