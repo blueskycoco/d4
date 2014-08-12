@@ -412,19 +412,28 @@ uchar Read_NByte_Randomaddress(uchar * readbuf,uchar n,uchar dataaddress)
     write1byte(deviceaddress);
     if(check())    
         write1byte(dataaddress);
-    else 
-        return 0;
+    else
+    {
+	    printf("R deviceaddress ack failed\r\n");
+	    return 0;
+    }
     if(check()) 
     {
         start();
         write1byte(deviceaddress|0x01);
     }
-    else 
-        return 0;
+    else
+    {
+	    printf("R write1byte ack failed\r\n");
+	    return 0;
+    }
     if(check()) 
         readNbyte(readbuf,n);
-    else 
-        return 0;
+    else
+    {
+	    printf("R deviceaddress|0x01 ack failed\r\n");
+	    return 0;
+    }
     
     return 1;    
 }
