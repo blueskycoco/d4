@@ -46,11 +46,11 @@ void halBoardInit(void)
   P3OUT  = 0;
   P3DIR  = 0xFF;
   P3SEL  = 0;
-  P4OUT  = 0x20;//p4.5 h
-  P4DIR  = 0xf0;
+  P4OUT  = 0x21;//p4.5 h
+  P4DIR  = 0x31;
   P4SEL  = 0x00;
   P5OUT  = 0;
-  P5DIR  = 0xFF;                        
+  P5DIR  = 0xF0;                        
   P5SEL  = 0;
   P6OUT = 0;
   P6DIR = 0xFF;
@@ -158,14 +158,21 @@ unsigned short Get_Power()
   	printf("Current Power is %x\r\n",PowerVoltage);
 	return PowerVoltage;
 }
+int read_count()
+{
+	return (((P5IN&0x01)<<5)|((P4IN&0x40)<<4)|((P4IN&0x80)<<3)|((P5IN&0x02)<<2)|((P5IN&0x04)<<1)|((P5IN&0x08)<<0));
+}
 #pragma vector=PORT1_VECTOR
 __interrupt void PORT1ISR(void){
-	if( ( P1IFG & BIT0 ) != 0 )
+	if((P1IFG & BIT0) != 0)
 	{
-		printf("back wave intr \r\n");
+		P4OUT &=~0x01;
+		delay_us(1);
+		P4OUT |=0x01;
+		printf("back wave intr %x\r\n",read_count());
 		P1IFG&=~BIT0;
 	}
-	if( ( P1IFG & BIT5 ) != 0 )
+	if((P1IFG & BIT5) != 0)
 	{
 		printf("U6 pin4 ,/Q intr \r\n");
 		P1IFG&=~BIT5;
