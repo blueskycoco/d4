@@ -3,10 +3,11 @@
  *
  * Copyright 2010 Texas Instruments, Inc.
  ***************************************************************************/
-
+#include <stdlib.h>
+#include <string.h>
 #include "msp430.h"
 #include "hal_lcd.h"
-
+extern void Delay(int ms);
 #define sclk P2OUT
 #define di P2OUT
 #define a0 P1OUT
@@ -545,7 +546,7 @@ void Init_Lcd(void)
 		}
 			
 	}
-	memset(buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
+	memset((void *)buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
 	fillrect(114,1,127,7,TRUE);
 	drawline(112,3,115,3);	
 	drawline(114,3,114,1);	

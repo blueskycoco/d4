@@ -7,7 +7,7 @@ AR=$(CROSS_COMPILE)ar
 
 # Can't use -f*-sections until SF 3534425 is fixed
 OPT_CFLAGS ?= -Os -ffunction-sections -fdata-sections -s
-WARN_CFLAGS = -Wall -Wno-main
+WARN_CFLAGS = -Wall -Wno-main -fno-builtin-putchar
 # Turn off warnings related to brokenness in the TI code
 # -Wno-unused-function: Headers provide static function declarations
 WARN_CFLAGS += -Wno-unused-function

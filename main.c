@@ -1,6 +1,7 @@
 /* Standard includes. */
 #include <stdio.h>
-
+//#include <stdlib.h>
+#include <string.h>
 /* Hardware includes. */
 #include "msp430.h"
 #include "hal_buttons.h"
@@ -29,7 +30,7 @@ void main( void )
 	Init_Uart(115200);
 	Init_Lcd();
 	Msp430_ADC12_Init();
-	Write_NByte(eeprom,10,0);
+	Write_NByte((unsigned char *)eeprom,10,0);
 	Read_NByte_Randomaddress(test,10,0);
 	printf("main %s\r\n",test);
 	 while(1)
@@ -145,17 +146,12 @@ int i;
 		{
 			LPM4_EXIT;
 			BCSCTL1 &= ~XT2OFF;
-  do
-  {   
-	/*j++;
-	if(j == 110) // XT2 Switching Overtime  
-	{
-	  break;
-	}*/
-	IFG1 &= ~OFIFG;       
-	for(i=0xff;i>0;i--);
-  }
-  while((IFG1&OFIFG));
+			do
+			{   
+				IFG1 &= ~OFIFG;       
+				for(i=0xff;i>0;i--);
+			}
+			while((IFG1&OFIFG));
 			hal_buzzer(0);
 			IFG1 &= ~NMIIFG;
 			IE1 |= NMIIE;

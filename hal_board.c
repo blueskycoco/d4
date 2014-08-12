@@ -3,6 +3,7 @@
  *
  * Copyright 2010 Texas Instruments, Inc.
  ******************************************************************************/
+#include <stdio.h>
 #include "msp430.h"
 #include "hal_lcd.h"
 #include "hal_board.h"
@@ -72,16 +73,11 @@ void halBoardInit(void)
  *************************************************************************/
 void hal430SetSystemClock()
 {
-  unsigned char i = 0, j = 0;
+  unsigned char i = 0;
   WDTCTL = WDTPW + WDTHOLD+WDTNMI+WDTNMIES;
   BCSCTL1 &= ~XT2OFF;
   do
   {   
-	/*j++;
-	if(j == 110) // XT2 Switching Overtime  
-	{
-	  break;
-	}*/
 	IFG1 &= ~OFIFG;       
 	for(i=0xff;i>0;i--);
   }
@@ -123,12 +119,6 @@ void hal_buzzer(int type)
 	P5OUT &=~BIT5;
 
   }
-}
-void us_delay(int v)
-{
-	volatile int i,j;
-	for(i=0;i<v;i++)
-		j=1;
 }
 void send_wave()
 {

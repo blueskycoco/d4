@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "msp430.h"
 #include "hal_at24c02.h"
 #define SCL_H {P3OUT |= BIT6;}
@@ -298,22 +299,33 @@ uchar Write_1Byte(uchar wdata,uchar dataaddress)
 ********************************************/
 uchar Write_NByte(uchar * outbuf,uchar n,uchar dataaddress)
 {
-    uchar  flag; 
-    
-    start();
-    write1byte(deviceaddress);                  //写入器件地址
-    if(check() == 1) 
-        write1byte(dataaddress);                //写入数据字地址
-    else 
-        return 0;
-    if(check()) 
-        flag=writeNbyte(outbuf,n);
-    else 
-        return 0;
-    delay_10ms();       //等待EEPROM完成内部写入
-    if(flag)    return 1;
-    else        return 0;
+	uchar  flag; 
 
+	start();
+	write1byte(deviceaddress);                  //写入器件地址
+	if(check() == 1) 
+		write1byte(dataaddress);                //写入数据字地址
+	else
+	{
+		printf("deviceaddress ack failed\r\n");
+		return 0;
+	}
+	if(check()) 
+		flag=writeNbyte(outbuf,n);
+	else
+	{
+		printf("write1byte ack failed\r\n");
+		return 0;
+	}
+	delay_10ms();       //等待EEPROM完成内部写入
+	if(flag)
+		return 1;
+	else
+	{
+		printf("writeNbyte failed\r\n");
+		return 0;
+	}
+	return 0;
 }
 /*******************************************
 函数名称：Read_1Byte_currentaddress
